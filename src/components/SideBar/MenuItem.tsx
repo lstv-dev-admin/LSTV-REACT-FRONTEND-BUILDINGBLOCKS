@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { mapClassToIcon } from "@/lib/fontawesome-icons";
 import { Button } from "@/components/ui/button";
 import { IMenuItem } from "@/features/shared/types";
+import { useSidebarStore } from "@/stores/useSidebarStore";
 
 interface MenuItemType extends IMenuItem {
 	hasChildren?: boolean;
@@ -22,6 +23,8 @@ interface Props {
 
 const MenuItem = ({ item, level = 0, sidebarOpen, expandedMenus, toggleMenu }: Props) => {
 	const location = useLocation();
+	const navigate = useNavigate();
+	const { setIsOpen } = useSidebarStore();
 
 	const isActive = location.pathname === item.path;
 	const hasSubMenus = item.hasChildren ?? !!item.children?.length;
@@ -29,6 +32,28 @@ const MenuItem = ({ item, level = 0, sidebarOpen, expandedMenus, toggleMenu }: P
 	const isClickable = !!item.path && item.path !== "#" && !hasSubMenus;
 	const iconDefinition = mapClassToIcon(item.icon, isActive);
 	const childItems = item.children ?? [];
+
+	const handleClick = (e: React.MouseEvent) => {
+		if (!sidebarOpen) {
+			e.preventDefault();
+			if (item.path && item.path !== "#") {
+				navigate(item.path);
+			} else if (hasSubMenus) {
+				setIsOpen(true);
+				if (!isExpanded) {
+					toggleMenu(item.code);
+				}
+			} else {
+				setIsOpen(true);
+			}
+			return;
+		}
+
+		if (hasSubMenus) {
+			e.preventDefault();
+			toggleMenu(item.code);
+		}
+	};
 
 	useEffect(() => {
 		if (!hasSubMenus) return;
@@ -107,7 +132,7 @@ const MenuItem = ({ item, level = 0, sidebarOpen, expandedMenus, toggleMenu }: P
 
 	return (
 		<div key={item.code}>
-			{isClickable ? (
+			{isClickable && sidebarOpen ? (
 				<Button
 					asChild
 					variant="ghost"
@@ -122,11 +147,7 @@ const MenuItem = ({ item, level = 0, sidebarOpen, expandedMenus, toggleMenu }: P
 			) : (
 				<Button
 					variant="ghost"
-					onClick={() => {
-						if (hasSubMenus) {
-							toggleMenu(item.code);
-						}
-					}}
+					onClick={handleClick}
 					className={buttonClassName}
 					style={buttonStyle}
 					title={buttonTitle}

@@ -14,6 +14,7 @@ import useLogoutMutation from "@/features/auth/hooks/mutations/useLogoutMutation
 // Utils
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useMenuStore } from "@/stores/useMenuStore";
+import { useSidebarStore } from "@/stores/useSidebarStore";
 import useConfirmStore from "@/stores/useConfirmStore";
 
 // Libs
@@ -29,21 +30,18 @@ import { IMenuItem } from "@/features/shared/types";
 import { cn } from "@/lib/utils";
 import icon from "@/assets/images/lstv-icon.png";
 
-interface Props {
-	isOpen?: boolean;
-}
-
 interface FilteredMenuItem extends IMenuItem {
 	hasChildren?: boolean;
 	shouldAutoExpand?: boolean;
 }
 
-const SideBarMenu = ({ isOpen }: Props) => {
+const SideBarMenu = () => {
 	const navigate = useNavigate();
 	const { user, logout } = useAuthStore();
 	const queryClient = useQueryClient();
 	const { confirm, setLoading: setConfirmLoading, close } = useConfirmStore();
 	const { menuTree, isLoading, isFetching, isError } = useMenuStore();
+	const { isOpen } = useSidebarStore();
 
 	const { mutateAsync: logoutMutation, isPending } = useLogoutMutation();
 

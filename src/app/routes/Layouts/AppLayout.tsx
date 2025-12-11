@@ -9,9 +9,10 @@ import {
     Settings,
     User
 } from "lucide-react";
-import { useState, Suspense } from "react";
+import { Suspense } from "react";
 import { cn } from "@/lib/utils";
 import SideBarMenu from "@/components/SideBar";
+import { useSidebarStore } from "@/stores/useSidebarStore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
     DropdownMenu, 
@@ -24,12 +25,12 @@ import {
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 
 const AppLayout = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(true);   
+    const { isOpen: sidebarOpen, toggle: toggleSidebar } = useSidebarStore();
 
     return (
         <div className="flex min-h-screen bg-background">
             {/* Sidebar */}
-            <SideBarMenu isOpen={sidebarOpen} />
+            <SideBarMenu />
             
             {/* Main Content */}
             <div
@@ -42,7 +43,7 @@ const AppLayout = () => {
                 <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-primary px-4 shadow-sm">
                     <Button
                         size="icon"
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        onClick={toggleSidebar}
                         variant="ghost"
                     >
                         <PanelLeftOpen className={cn("h-5 w-5 text-primary-foreground", sidebarOpen && "rotate-180")} />
